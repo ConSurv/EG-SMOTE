@@ -67,9 +67,17 @@ class Utilities:
         if global_context.shape[0] < 2:
             # keys = list(nodemap.keys())
             keys = np.asarray(list(nodemap.keys()))
-            # dims = nodemap[keys[0]].dimensions
-            vList = np.asarray(nodemap.values())
-            values = np.asarray([nodemap[k].recurrent_weights[0] for k in keys])
+            dims = nodemap[keys[0]].dimensions
+            # for k in keys:
+            #     y = nodemap[k].recurrent_weights
+            #     z = nodemap[k].recurrent_weights.reshape((dims))
+            #
+            # assf = [nodemap[k].recurrent_weights.reshape((dims)) for k in keys]
+
+            # values = np.asarray([nodemap[k].recurrent_weights.reshape((dims)) for k in keys])
+            val = [nodemap[k].recurrent_weights[0] for k in keys]
+            values = np.asarray(val)
+
             # global_context_dim = np.tile(global_context, (values.shape[0], 1))
             out = scipy.spatial.distance.cdist(values,global_context, 'euclidean')
 

@@ -75,7 +75,10 @@ class GSOMNode:
         self.recurrent_weights[0] = weight  # current weight vector
         self.recurrent_weights[1:] = context_weights
 
+        self.recurrent_weights_new = weight
+
         # To be used to map labels and classes after GSOM phases are completed
+        self.mappedLabels_indexes = []
         self.mappedLabels = []
         self.mappedClasses = []
         self.data = []
@@ -97,8 +100,8 @@ class GSOMNode:
 
     def adjust_weights(self, global_context, influence, learn_rate):  # epsilon == learning rate
         delta_weights = np.zeros((self.num_contexts, self.dimensions))
-        for i in range(0, self.num_contexts):
-            delta_weights[i] = influence * learn_rate * (global_context[i] - self.recurrent_weights[i]) * self.habituation
+        # for i in range(0, self.num_contexts):
+        delta_weights[0] = np.multiply(np.subtract(global_context[0],self.recurrent_weights[0]),(influence * learn_rate * self.habituation))
 
         # Update recurrent weights of the GSOM neuron
         self.recurrent_weights += delta_weights
@@ -106,8 +109,14 @@ class GSOMNode:
     def cal_and_update_error(self, global_context, alphas):
         self.error += Utils.Utilities.get_distance_recurrent(global_context, self.recurrent_weights, alphas)
 
+    def map_label_indexes(self, input_label):
+        self.mappedLabels_indexes.append(input_label)
+
     def map_label(self, input_label):
         self.mappedLabels.append(input_label)
+
+    def change_label(self, input_label):
+        self.mappedLabels = input_label
 
     def map_class(self, input_class):
         self.mappedClasses.append(input_class)
@@ -117,6 +126,9 @@ class GSOMNode:
 
     def get_hit_count(self):
         return self.hit_count
+
+    def get_mapped_labels_indexes(self):
+        return self.mappedLabels_indexes
 
     def get_mapped_labels(self):
         return self.mappedLabels
