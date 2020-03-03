@@ -1,0 +1,14 @@
+
+.idea/
+
+applications/__pycache__/
+
+core4/__pycache__/
+
+gsmote/__pycache__/
+
+gsmote/comparison_testing/__pycache__/
+
+params/__pycache__/
+
+util/__pycache__/

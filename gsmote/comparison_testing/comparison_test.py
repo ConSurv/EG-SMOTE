@@ -6,19 +6,18 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeRegressor
-from gsmote import GSMOTE, GeometricSMOTE
+from gsmote import GeometricSMOTE
 from gsmote.comparison_testing.Evaluator import evaluate
 import gsmote.comparison_testing.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import  visualize_data as vs
 import sys
 import pandas as pd
 import xgboost as xgb
-import gsmote.comparison_testing.analysis as analyser
 
 sys.path.append('../../')
 
 # dataset
-date_file = "../../data/KDD.csv".replace('\\', '/')
+date_file = "../../data/KDDmini.csv".replace('\\', '/')
 
 # data transformation if necessary.
 X, y = pp.pre_process(date_file)
@@ -30,7 +29,8 @@ vs(X_t, y_t, "Original data")
 
 # oversample
 print("Oversampling in progress...")
-X_train, y_train = GSMOTE.OverSample(X_t, y_t)
+GSMOTE = GeometricSMOTE()
+X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
 
 # visualize oversampled data.
 print("Oversampling completed.")
@@ -117,31 +117,20 @@ def MLPClassifier():
     return evaluate("MLPClassifier", y_test, y_pred)
 
 
-def Deep_One_Class_Classifier():
+def GaussianMixture_model():
     from sklearn.mixture import GaussianMixture
     gmm = GaussianMixture(n_components=1)
-    gmm.fit(X_train[y_train=='1'])
+    gmm.fit(X_train[y_train==0])
 
-    OKscore = gmm.score_samples(X_train[y_train=='1'])
+    OKscore = gmm.score_samples(X_train[y_train==0])
     threshold = OKscore.mean() -  1* OKscore.std()
 
-    Trainer=np.column_stack((y_train[y_train=='1'],OKscore))
-    Trainer = np.vstack((["y_train","Score"],Trainer))
-    Train_Frame=pd.DataFrame(Trainer[1:,:],columns=Trainer[0,:])
-    Train_Stat = Train_Frame["Score"]
-    asd=pd.Series(OKscore).describe()
 
     score = gmm.score_samples(X_test)
 
-    Tester = np.column_stack((y_test, score))
-
-
-    Test_Frame = pd.DataFrame(Tester,columns=["y_test","Score"])
-    Test_Stat = Test_Frame["Score"].describe()
-
 
     # majority_correct = len(score[(y_test == 1) & (score > thred)])
-    y_pred = np.where(score > threshold,1,0)
+    y_pred = np.where(score < threshold,1,0)
     return evaluate("Deep_One_Cls_Classifier",y_test,y_pred)
 
 
@@ -153,12 +142,15 @@ performance3 = XGBoost()
 performance4 = KNN()
 performance5 = decision_tree()
 performance6 = MLPClassifier()
-performance7 = Deep_One_Class_Classifier()
+performance7 = GaussianMixture_model()
 
 
 labels = ["Classifier", "f_score","g_mean","auc_value"]
-values = [performance1,performance2,performance4,performance5,performance6,performance7]
+values = [performance1,performance2, performance3, performance4,performance5,performance6,performance7]
 scores = pd.DataFrame(values,columns=labels)
 # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
 print(scores)
 
+import applications.main as gsom
+y_test, y_pred = gsom.run()
+gsom.evaluate(y_test, y_pred)
