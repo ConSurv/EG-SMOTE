@@ -14,8 +14,8 @@ class Controller:
         gsom.smooth()
         self.gsom_nodemap = gsom.assign_hits()
         gsom.finalize_gsom_label()
-        # y_pred = gsom.predict(X_test)
-        # return y_pred
+        y_pred = gsom.predict(X_test)
+        return y_pred
 
 
     def run(self, input_vector_db, X_test,plot_for_itr=0, classes=None, output_loc=None):
