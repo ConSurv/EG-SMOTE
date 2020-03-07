@@ -7,7 +7,7 @@ from imblearn.over_sampling import SMOTE
 class InputParser:
 
     @staticmethod
-    def parse_input_zoo_data(filename, header='infer'):
+    def parse_input_zoo_data(filename):
         gsmote = EGSmote(random_state=1)
         df = pd.read_csv(filename)
         X = np.asarray(df.iloc[:, :-1].values)

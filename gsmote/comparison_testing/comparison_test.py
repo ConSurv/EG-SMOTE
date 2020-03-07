@@ -108,10 +108,10 @@ def GaussianMixture_model():
 for filename in os.listdir(path):
 
     # dataset
-    date_file = path+filename.replace('\\', '/')
+    data_file = path+filename.replace('\\', '/')
 
     # data transformation if necessary.
-    X, y = pp.pre_process(date_file)
+    X, y = pp.pre_process(data_file)
 
     X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
@@ -126,12 +126,12 @@ for filename in os.listdir(path):
     # for oldGSMOTE
     # GSMOTE = OldGeometricSMOTE()
 
-    GSMOTE = EGSmote()
-    X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
+    # GSMOTE = EGSmote()
+    # X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
 
         # For SMOTE
-    # sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
-    # X_train, y_train = sm.fit_resample(X_t, y_t)
+    sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
+    X_train, y_train = sm.fit_resample(X_t, y_t)
 
 
     # visualize oversampled data.
@@ -157,8 +157,8 @@ for filename in os.listdir(path):
     print(scores)
 
     import applications.main as gsom
-    y_test, y_pred = gsom.run()
-    gsom.evaluate(y_test, y_pred)
+    y_test, y_pred = gsom.run(data_file)
+    gsom.evaluate("GSOM Classifier",y_test.astype(str), y_pred)
 
 
 
