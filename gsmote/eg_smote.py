@@ -142,7 +142,7 @@ class EGSmote(BaseOverSampler):
             deformation_factor=0.0,
             k_neighbors=5,
             n_jobs=1,
-            sampling_rate=0.25,
+            sampling_rate=0.3,
     ):
         super(EGSmote, self).__init__(sampling_strategy=sampling_strategy)
         self.random_state = random_state

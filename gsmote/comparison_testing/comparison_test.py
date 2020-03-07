@@ -10,11 +10,12 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeRegressor
+import xgboost as xgb
 from gsmote import EGSmote
 from gsmote.oldgsmote import OldGeometricSMOTE
 from gsmote.comparison_testing.Evaluator import evaluate
 import gsmote.comparison_testing.preprocessing as pp
-from gsmote.comparison_testing.compare_visual import  visualize_data as vs
+from gsmote.comparison_testing.compare_visual import visualize_data as vs
 import pandas as pd
 from imblearn.over_sampling import SMOTE
 
@@ -22,7 +23,7 @@ sys.path.append('../../')
 
 #  Directory
 path = '../../data/'
-
+# path = '/content/Modified-Geometric-Smote'
 
 def logistic_training():
 
@@ -50,17 +51,17 @@ def gradient_boosting():
     return evaluate("Gradient Boosting", y_test, y_pred)
 
 
-# def XGBoost():
-#
-#     # Fitting X-Gradient boosting
-#     gbc = xgb.XGBClassifier(objective="binary:logistic", random_state=42)
-#     gbc.fit(X_train, y_train)
-#
-#     # Predicting the Test set results
-#     y_predict = gbc.predict(X_test)
-#     y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
-#
-#     return evaluate("XGBoost", y_test, y_pred)
+def XGBoost():
+
+    # Fitting X-Gradient boosting
+    gbc = xgb.XGBClassifier(objective="binary:logistic", random_state=42)
+    gbc.fit(X_train, y_train)
+
+    # Predicting the Test set results
+    y_predict = gbc.predict(X_test)
+    y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
+
+    return evaluate("XGBoost", y_test, y_pred)
 
 
 def KNN():
@@ -121,10 +122,14 @@ for filename in os.listdir(path):
     print("---------------------------------------------------------")
     print("Dataset: " + filename)
     print("Oversampling in progress ...")
+
+    # for oldGSMOTE
+    # GSMOTE = OldGeometricSMOTE()
+
     GSMOTE = EGSmote()
     X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
 
-    # For SMOTE
+        # For SMOTE
     # sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
     # X_train, y_train = sm.fit_resample(X_t, y_t)
 
@@ -140,21 +145,20 @@ for filename in os.listdir(path):
 
     performance1 = logistic_training()
     performance2 = gradient_boosting()
-    # performance3 = XGBoost()
+    performance3 = XGBoost()
     performance4 = KNN()
     performance5 = decision_tree()
-    # performance6 = MLPClassifier()
-    # performance7 = GaussianMixture_model()
+    performance6 = GaussianMixture_model()
 
     labels = ["Classifier", "f_score", "g_mean", "auc_value"]
-    values = [performance1, performance2, performance4, performance5]
+    values = [performance1, performance2, performance3, performance4, performance5, performance6]
     scores = pd.DataFrame(values, columns=labels)
     # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
     print(scores)
 
-    # import applications.main as gsom
-    # y_test, y_pred = gsom.run()
-    # gsom.evaluate(y_test, y_pred)
+    import applications.main as gsom
+    y_test, y_pred = gsom.run()
+    gsom.evaluate(y_test, y_pred)
 
 
 
