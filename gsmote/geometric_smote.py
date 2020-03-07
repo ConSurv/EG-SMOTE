@@ -23,29 +23,22 @@ def _make_geometric_sample(
 ):
     """A support function that returns an artificial point inside
     the geometric region defined by the center and surface points.
-
     Parameters
     ----------
     center : ndarray, shape (n_features, )
         Center point of the geometric region.
-
     surface_point : ndarray, shape (n_features, )
         Surface point of the geometric region.
-
     truncation_factor : float, optional (default=0.0)
         The type of truncation. The values should be in the [-1.0, 1.0] range.
-
     deformation_factor : float, optional (default=0.0)
         The type of geometry. The values should be in the [0.0, 1.0] range.
-
     random_state : int, RandomState instance or None
         Control the randomization of the algorithm.
-
     Returns
     -------
     point : ndarray, shape (n_features, )
             Synthetically generated sample.
-
     """
 
     # Zero radius case
@@ -92,57 +85,41 @@ def _make_geometric_sample(
 )
 class GeometricSMOTE(BaseOverSampler):
     """Class to to perform over-sampling using Geometric SMOTE.
-
     This algorithm is an implementation of Geometric SMOTE, a geometrically
     enhanced drop-in replacement for SMOTE as presented in [1]_.
-
     Read more in the :ref:`User Guide <user_guide>`.
-
     Parameters
     ----------
     {sampling_strategy}
-
     {random_state}
-
     truncation_factor : float, optional (default=0.0)
         The type of truncation. The values should be in the [-1.0, 1.0] range.
-
     deformation_factor : float, optional (default=0.0)
         The type of geometry. The values should be in the [0.0, 1.0] range.
-
     k_neighbors : int or object, optional (default=5)
         If ``int``, number of nearest neighbours to use when synthetic
         samples are constructed for the minority method.  If object, an estimator
         that inherits from :class:`sklearn.neighbors.base.KNeighborsMixin` that
         will be used to find the k_neighbors.
-
     n_jobs : int, optional (default=1)
         The number of threads to open if possible.
-
     sampling_rate : float, optional (default=0.3)
         The proportion or number of synthetic samples to be generated
-
     Notes
     -----
     See the original paper: [1]_ for more details.
-
     Supports multi-class resampling. A one-vs.-rest scheme is used as
     originally proposed in [2]_.
-
     References
     ----------
-
     .. [1] G. Douzas, F. Bacao, "Geometric SMOTE:
        a geometrically enhanced drop-in replacement for SMOTE",
        Information Sciences, vol. 501, pp. 118-135, 2019.
-
     .. [2] N. V. Chawla, K. W. Bowyer, L. O. Hall, W. P. Kegelmeyer, "SMOTE:
        synthetic minority over-sampling technique", Journal of Artificial
        Intelligence Research, vol. 16, pp. 321-357, 2002.
-
     Examples
     --------
-
     >>> from collections import Counter
     >>> from sklearn.datasets import make_classification
     >>> from gsmote import GeometricSMOTE # doctest: +NORMALIZE_WHITESPACE
@@ -155,7 +132,6 @@ class GeometricSMOTE(BaseOverSampler):
     >>> X_res, y_res = gsmote.fit_resample(X, y)
     >>> print('Resampled dataset shape %s' % Counter(y_res))
     Resampled dataset shape Counter({{0: 900, 1: 900}})
-
     """
 
     def __init__(
@@ -166,7 +142,7 @@ class GeometricSMOTE(BaseOverSampler):
             deformation_factor=0.0,
             k_neighbors=5,
             n_jobs=1,
-            sampling_rate=0.3,
+            sampling_rate=0.25,
     ):
         super(GeometricSMOTE, self).__init__(sampling_strategy=sampling_strategy)
         self.random_state = random_state
@@ -193,7 +169,6 @@ class GeometricSMOTE(BaseOverSampler):
     def _make_geometric_samples(self, X, y, pos_class_label, n_samples):
         """A support function that returns an artificials samples inside
         the geometric region defined by nearest neighbors.
-
         Parameters
         ----------
         X : array-like, shape (n_samples, n_features)
@@ -204,14 +179,12 @@ class GeometricSMOTE(BaseOverSampler):
             The minority class (positive class) target value.
         n_samples : int
             The number of samples to generate.
-
         Returns
         -------
         X_new : ndarray, shape (n_samples_new, n_features)
             Synthetically generated samples.
         y_new : ndarray, shape (n_samples_new, )
             Target values for synthetic samples.
-
         """
         # Return zero new samples
         if n_samples == 0:
@@ -309,7 +282,7 @@ class GeometricSMOTE(BaseOverSampler):
     def sub_clustering(self, X_pos, n_samples):
         num_clusters=4
         # synthetic samples created under minority strategy
-        num_samples = n_samples * 0.25
+        num_samples = n_samples * 0.3
         kmeans = KMeans(n_clusters=num_clusters)
         kmeans.fit(X_pos)
         y_kmeans = kmeans.predict(X_pos)

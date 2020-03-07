@@ -1,8 +1,10 @@
 """Class to compare performance with different classifiers"""
 
 import numpy as np
+import os
+from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeRegressor
@@ -12,46 +14,25 @@ import gsmote.comparison_testing.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import  visualize_data as vs
 import sys
 import pandas as pd
-import xgboost as xgb
+# import xgboost as xgb
 
 sys.path.append('../../')
 
-# dataset
-date_file = "../../data/KDDmini.csv".replace('\\', '/')
+#  Directory
+path = '../../data/'
 
-# data transformation if necessary.
-X, y = pp.pre_process(date_file)
 
-X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-# Visualize original data
-vs(X_t, y_t, "Original data")
-
-# oversample
-print("Oversampling in progress...")
-GSMOTE = GeometricSMOTE()
-X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
-
-# visualize oversampled data.
-print("Oversampling completed.")
-print("Plotting oversampled data...")
-
-# use this line of code to interpret oversampled data.
-# vs(X_train, y_train, "Oversampled ")
-
-print("Plotting completed")
-
-def linear_training():
+def logistic_training():
 
     # Fitting Simple Linear Regression to the Training set
-    regressor = LinearRegression()
+    regressor = LogisticRegression()
     regressor.fit(X_train, y_train)
 
     # Predicting the Test set results
     y_predict = regressor.predict(X_test)
     y_pred = np.where(y_predict > 0.5, 1, 0)
 
-    return evaluate("Linear Regression", y_test, y_pred)
+    return evaluate("Logistic Regression", y_test, y_pred)
 
 
 def gradient_boosting():
@@ -67,17 +48,17 @@ def gradient_boosting():
     return evaluate("Gradient Boosting", y_test, y_pred)
 
 
-def XGBoost():
-
-    # Fitting X-Gradient boosting
-    gbc = xgb.XGBClassifier(objective="binary:logistic", random_state=42)
-    gbc.fit(X_train, y_train)
-
-    # Predicting the Test set results
-    y_predict = gbc.predict(X_test)
-    y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
-
-    return evaluate("XGBoost", y_test, y_pred)
+# def XGBoost():
+#
+#     # Fitting X-Gradient boosting
+#     gbc = xgb.XGBClassifier(objective="binary:logistic", random_state=42)
+#     gbc.fit(X_train, y_train)
+#
+#     # Predicting the Test set results
+#     y_predict = gbc.predict(X_test)
+#     y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
+#
+#     return evaluate("XGBoost", y_test, y_pred)
 
 
 def KNN():
@@ -134,23 +115,60 @@ def GaussianMixture_model():
     return evaluate("Deep_One_Cls_Classifier",y_test,y_pred)
 
 
+for filename in os.listdir(path):
+
+    # dataset
+    date_file = path+filename.replace('\\', '/')
+
+    # data transformation if necessary.
+    X, y = pp.pre_process(date_file)
+
+    X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+    # Visualize original data
+    # vs(X_t, y_t, "Original data")
+
+    # oversample
+    print("---------------------------------------------------------")
+    print("Dataset: " + filename)
+    print("Oversampling in progress ...")
+    GSMOTE = GeometricSMOTE()
+    X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
+
+    # For SMOTE
+    # sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
+    # X_train, y_train = sm.fit_resample(X_t, y_t)
 
 
-performance1 = linear_training()
-performance2 = gradient_boosting()
-performance3 = XGBoost()
-performance4 = KNN()
-performance5 = decision_tree()
-performance6 = MLPClassifier()
-performance7 = GaussianMixture_model()
+    # visualize oversampled data.
+    print("Oversampling completed.")
+    print("Plotting oversampled data...")
+
+    # use this line of code to interpret oversampled data.
+    # vs(X_train, y_train, "Oversampled ")
+
+    print("Plotting completed")
+
+    performance1 = logistic_training()
+    performance2 = gradient_boosting()
+    # performance3 = XGBoost()
+    performance4 = KNN()
+    performance5 = decision_tree()
+    # performance6 = MLPClassifier()
+    # performance7 = GaussianMixture_model()
+
+    labels = ["Classifier", "f_score", "g_mean", "auc_value"]
+    values = [performance1, performance2, performance4, performance5]
+    scores = pd.DataFrame(values, columns=labels)
+    # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
+    print(scores)
+
+    # import applications.main as gsom
+    # y_test, y_pred = gsom.run()
+    # gsom.evaluate(y_test, y_pred)
+
+    print("---------------------------------------------------------------")
 
 
-labels = ["Classifier", "f_score","g_mean","auc_value"]
-values = [performance1,performance2, performance3, performance4,performance5,performance6,performance7]
-scores = pd.DataFrame(values,columns=labels)
-# scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
-print(scores)
 
-import applications.main as gsom
-y_test, y_pred = gsom.run()
-gsom.evaluate(y_test, y_pred)
+
