@@ -41,7 +41,7 @@ def run():
 
     # File Config
     dataset = 'anomaly'
-    data_filename = "../../data/KDDmini.csv".replace('\\', '/')
+    data_filename = "../../data/NSLKDD-3.csv".replace('\\', '/')
     experiment_id = 'Exp-new-gsom-' + datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
     output_save_location = join('output/', experiment_id)
 
@@ -81,6 +81,6 @@ def evaluate(classifier, Y_test, y_pred):
     return [classifier, f_score, g_mean, AUC]
 
 y_test, y_pred =run()
-evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
+# evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
 
 print('Completed.')
