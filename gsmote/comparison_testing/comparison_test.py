@@ -1,5 +1,8 @@
 """Class to compare performance with different classifiers"""
 import sys
+
+import time
+
 sys.path.append('../../')
 # sys.path.append('/content/Modified-Geometric-Smote/')
 import numpy as np
@@ -17,6 +20,7 @@ import gsmote.comparison_testing.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import  visualize_data as vs
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+import matplotlib.pyplot as plt
 
 sys.path.append('../../')
 
@@ -36,11 +40,10 @@ def logistic_training():
 
     return evaluate("Logistic Regression", y_test, y_pred)
 
-
 def gradient_boosting():
 
-    # Fitting Gradient boosting
-    gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3)
+    # Fitting Gradient boosting- overfitting prevented with early stop
+    gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3,n_iter_no_change=5, tol=0.01,)
     gbc.fit(X_train, y_train)
 
     # Predicting the Test set results
@@ -121,7 +124,7 @@ for filename in os.listdir(path):
     print("---------------------------------------------------------")
     print("Dataset: " + filename)
     print("Oversampling in progress ...")
-    GSMOTE = EGSmote()
+    GSMOTE = OldGeometricSMOTE()
     X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
 
     # For SMOTE
@@ -138,19 +141,19 @@ for filename in os.listdir(path):
 
     print("Plotting completed")
 
-    performance1 = logistic_training()
+    # performance1 = logistic_training()
     performance2 = gradient_boosting()
     # performance3 = XGBoost()
-    performance4 = KNN()
-    performance5 = decision_tree()
+    # performance4 = KNN()
+    # performance5 = decision_tree()
     # performance6 = MLPClassifier()
     # performance7 = GaussianMixture_model()
 
     labels = ["Classifier", "f_score", "g_mean", "auc_value"]
-    values = [performance1, performance2, performance4, performance5]
+    values = [performance2]
     scores = pd.DataFrame(values, columns=labels)
     # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
-    print(scores)
+    # print(scores)
 
     # import applications.main as gsom
     # y_test, y_pred = gsom.run()
