@@ -1,5 +1,9 @@
 """Class to compare performance with different classifiers"""
+import datetime
 import sys
+
+from sklearn import model_selection
+
 sys.path.append('../../')
 # sys.path.append('/content/Modified-Geometric-Smote/')
 import numpy as np
@@ -17,6 +21,9 @@ import gsmote.comparison_testing.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import  visualize_data as vs
 import pandas as pd
 from imblearn.over_sampling import SMOTE
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
+
+
 
 sys.path.append('../../')
 
@@ -25,29 +32,64 @@ path = '../../data/'
 
 
 def logistic_training():
+    scoring = {'accuracy': make_scorer(accuracy_score),
+               'precision': make_scorer(precision_score),
+               'recall': make_scorer(recall_score),
+               'f1_score': make_scorer(f1_score)}
 
-    # Fitting Simple Linear Regression to the Training set
+    kfold = model_selection.KFold(n_splits=10, random_state=True)
+
     regressor = LogisticRegression()
-    regressor.fit(X_train, y_train)
 
-    # Predicting the Test set results
-    y_predict = regressor.predict(X_test)
+    results = model_selection.cross_validate(estimator=regressor,
+                                             X=X_train,
+                                             y=y_train,
+                                             cv=kfold,
+                                             scoring=scoring)
+
+    y_predict = model_selection.cross_val_predict(estimator=regressor, X=X_test, y=y_test, cv=kfold)
     y_pred = np.where(y_predict > 0.5, 1, 0)
 
-    return evaluate("Logistic Regression", y_test, y_pred)
+    # Fitting Simple Linear Regression to the Training set
+    regressor2 = LogisticRegression()
+    regressor2.fit(X_train, y_train)
+
+    # Predicting the Test set results
+    y_predict2 = regressor2.predict(X_test)
+    y_pred2 = np.where(y_predict2 > 0.5, 1, 0)
+
+    return evaluate("LR", y_test, y_pred,y_pred2)
 
 
 def gradient_boosting():
+    scoring = {'accuracy': make_scorer(accuracy_score),
+               'precision': make_scorer(precision_score),
+               'recall': make_scorer(recall_score),
+               'f1_score': make_scorer(f1_score)}
+
+    kfold = model_selection.KFold(n_splits=10, random_state=True)
+
+    gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3)
+
+    results = model_selection.cross_validate(estimator=gbc,
+                                             X=X_train,
+                                             y=y_train,
+                                             cv=kfold,
+                                             scoring=scoring)
+
+    y_predict = model_selection.cross_val_predict(estimator=gbc, X=X_test, y=y_test, cv=kfold)
+    y_pred = np.where(y_predict > 0.5, 1, 0)
+
 
     # Fitting Gradient boosting
-    gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3)
-    gbc.fit(X_train, y_train)
+    gbc2 = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3)
+    gbc2.fit(X_train, y_train)
 
     # Predicting the Test set results
-    y_predict = gbc.predict(X_test)
-    y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
+    y_predict2 = gbc2.predict(X_test)
+    y_pred2 = np.where(y_predict2.astype(int) > 0.5, 1, 0)
 
-    return evaluate("Gradient Boosting", y_test, y_pred)
+    return evaluate("GBC", y_test, y_pred,y_pred2)
 
 
 # def XGBoost():
@@ -65,27 +107,81 @@ def gradient_boosting():
 
 def KNN():
 
+    scoring = {'accuracy': make_scorer(accuracy_score),
+               'precision': make_scorer(precision_score),
+               'recall': make_scorer(recall_score),
+               'f1_score': make_scorer(f1_score)}
+
+    kfold = model_selection.KFold(n_splits=10, random_state=True)
+
+
+
+
     # Fitting Simple Linear Regression to the Training set
     classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
-    classifier.fit(X_train, y_train)
+    results = model_selection.cross_validate(estimator=classifier,
+                                              X=X_train,
+                                              y=y_train,
+                                              cv=kfold,
+                                              scoring=scoring)
+
+    print("mean_acc = ", np.mean(results['test_accuracy']))
+    print("std_acc = ",np.std(results['test_accuracy']))
+
+    print("mean_precision = ", np.mean(results['test_precision']))
+    print("std_precision = ", np.std(results['test_precision']))
+
+    print("mean_recall = ", np.mean(results['test_recall']))
+    print("std_recall = ", np.std(results['test_recall']))
+
+    print("mean_f1 = ", np.mean(results['test_f1_score']))
+    print("std_f1 = ", np.std(results['test_f1_score']))
+
+
+    y_pred = model_selection.cross_val_predict(estimator=classifier,X=X_test,y=y_test,cv=kfold)
+
+
+
+
+    classifier2 = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
+
+    classifier2.fit(X_train, y_train)
 
     # Predicting the Test set results
-    y_pred = classifier.predict(X_test).astype(int)
+    y_pred2 = classifier2.predict(X_test).astype(int)
 
-    return evaluate("KNN", y_test, y_pred)
+    return evaluate("KNN", y_test, y_pred,y_pred2)
 
 
 def decision_tree():
+    scoring = {'accuracy': make_scorer(accuracy_score),
+               'precision': make_scorer(precision_score),
+               'recall': make_scorer(recall_score),
+               'f1_score': make_scorer(f1_score)}
 
-    # Fitting Simple Linear Regression to the Training set
+    kfold = model_selection.KFold(n_splits=10, random_state=True)
+
     regressor = DecisionTreeRegressor()
-    regressor.fit(X_train, y_train)
 
-    # Predicting the Test set results
-    y_predict = regressor.predict(X_test)
+    results = model_selection.cross_validate(estimator=regressor,
+                                             X=X_train,
+                                             y=y_train,
+                                             cv=kfold,
+                                             scoring=scoring)
+
+    y_predict = model_selection.cross_val_predict(estimator=regressor, X=X_test, y=y_test, cv=kfold)
     y_pred = np.where(y_predict > 0.5, 1, 0)
 
-    return evaluate("Decision Tree", y_test, y_pred)
+
+    # Fitting Simple Linear Regression to the Training set
+    regressor2 = DecisionTreeRegressor()
+    regressor2.fit(X_train, y_train)
+
+    # Predicting the Test set results
+    y_predict2 = regressor2.predict(X_test)
+    y_pred2 = np.where(y_predict2 > 0.5, 1, 0)
+
+    return evaluate("DT", y_test, y_pred,y_pred2)
 
 def GaussianMixture_model():
     from sklearn.mixture import GaussianMixture
@@ -138,18 +234,20 @@ for filename in os.listdir(path):
 
     print("Plotting completed")
 
-    performance1 = logistic_training()
-    performance2 = gradient_boosting()
+    # performance1 = logistic_training()
+    # performance2 = gradient_boosting()
     # performance3 = XGBoost()
     performance4 = KNN()
-    performance5 = decision_tree()
+    # performance5 = decision_tree()
     # performance6 = MLPClassifier()
     # performance7 = GaussianMixture_model()
 
-    labels = ["Classifier", "f_score", "g_mean", "auc_value"]
-    values = [performance1, performance2, performance4, performance5]
+    labels = ["Classifier", "f_score", "f_score2","g_mean","g_mean2", "auc_value","auc_value2"]
+    # values = [performance1, performance2, performance4, performance5]
+    values = [performance4]
+
     scores = pd.DataFrame(values, columns=labels)
-    # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
+    scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
     print(scores)
 
     # import applications.main as gsom
