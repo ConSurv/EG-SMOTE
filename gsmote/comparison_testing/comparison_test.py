@@ -13,7 +13,7 @@ from sklearn.tree import DecisionTreeRegressor
 import xgboost as xgb
 from gsmote import EGSmote
 from gsmote.oldgsmote import OldGeometricSMOTE
-from gsmote.comparison_testing.Evaluator import evaluate
+from gsmote.comparison_testing.Evaluator import evaluate_Comparison
 import gsmote.comparison_testing.preprocessing as pp
 from gsmote.comparison_testing.compare_visual import visualize_data as vs
 import pandas as pd
@@ -35,7 +35,7 @@ def logistic_training():
     y_predict = regressor.predict(X_test)
     y_pred = np.where(y_predict > 0.5, 1, 0)
 
-    return evaluate("Logistic Regression", y_test, y_pred)
+    return evaluate_Comparison("Logistic Regression", y_test, y_pred)
 
 
 def gradient_boosting():
@@ -48,7 +48,7 @@ def gradient_boosting():
     y_predict = gbc.predict(X_test)
     y_pred = np.where(y_predict.astype(int) > 0.5, 1, 0)
 
-    return evaluate("Gradient Boosting", y_test, y_pred)
+    return evaluate_Comparison("Gradient Boosting", y_test, y_pred)
 
 
 def XGBoost():
@@ -73,7 +73,7 @@ def KNN():
     # Predicting the Test set results
     y_pred = classifier.predict(X_test).astype(int)
 
-    return evaluate("KNN", y_test, y_pred)
+    return evaluate_Comparison("KNN", y_test, y_pred)
 
 
 def decision_tree():
@@ -86,7 +86,7 @@ def decision_tree():
     y_predict = regressor.predict(X_test)
     y_pred = np.where(y_predict > 0.5, 1, 0)
 
-    return evaluate("Decision Tree", y_test, y_pred)
+    return evaluate_Comparison("Decision Tree", y_test, y_pred)
 
 def GaussianMixture_model():
     from sklearn.mixture import GaussianMixture
@@ -102,7 +102,7 @@ def GaussianMixture_model():
 
     # majority_correct = len(score[(y_test == 1) & (score > thred)])
     y_pred = np.where(score < threshold,1,0)
-    return evaluate("GaussianMixture_model",y_test,y_pred)
+    return evaluate_Comparison("GaussianMixture_model",y_test,y_pred)
 
 
 for filename in os.listdir(path):
