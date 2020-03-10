@@ -1,8 +1,15 @@
+import os
 import time
 
 from pandas import np
 from sklearn.ensemble import GradientBoostingClassifier
-import matplotlib as plt
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+import gsmote.comparison_testing.preprocessing as pp
+
+from gsmote import EGSmote
+from gsmote.oldgsmote import OldGeometricSMOTE
 
 
 def gbc_overfitting(date_file,X_train, y_train,X_test, y_test):
@@ -72,3 +79,68 @@ def gbc_overfitting(date_file,X_train, y_train,X_test, y_test):
     plt.ylabel('Test score')
 
     plt.show()
+
+def decision_tree():
+    clf = DecisionTreeClassifier(random_state=0)
+    path = clf.cost_complexity_pruning_path(X_train, y_train)
+    ccp_alphas, impurities = path.ccp_alphas, path.impurities
+
+
+
+    clfs = []
+    for ccp_alpha in ccp_alphas:
+        clf = DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
+        clf.fit(X_train, y_train)
+        clfs.append(clf)
+
+    clfs = clfs[:-1]
+    ccp_alphas = ccp_alphas[:-1]
+
+    train_scores = [clf.score(X_train, y_train) for clf in clfs]
+    test_scores = [clf.score(X_test, y_test) for clf in clfs]
+
+    fig, ax = plt.subplots()
+    ax.set_xlabel("alpha")
+    ax.set_ylabel("accuracy")
+    ax.set_title("Accuracy vs alpha for training and testing sets")
+    ax.plot(ccp_alphas, train_scores, marker='o', label="train",
+            drawstyle="steps-post")
+    ax.plot(ccp_alphas, test_scores, marker='o', label="test",
+            drawstyle="steps-post")
+    ax.legend()
+    plt.show()
+
+#  Directory
+path = '../../data/'
+for filename in os.listdir(path):
+    # dataset
+    date_file = path + filename.replace('\\', '/')
+
+    # data transformation if necessary.
+    X, y = pp.pre_process(date_file)
+
+    X_t, X_test, y_t, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+    # Visualize original data
+    # vs(X_t, y_t, "Original data")
+
+    # oversample
+    print("------------------------------------------------------")
+    print("Dataset: " + filename)
+    print("Oversampling in progress ...")
+
+    # for GeometricSMOTE
+    GSMOTE = OldGeometricSMOTE()
+    X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
+
+    #  for GeometricSMOTE
+    # GSMOTE = EGSmote()
+    # X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
+
+    # For SMOTE
+    # sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
+    # X_train, y_train = sm.fit_resample(X_t, y_t)
+
+    print("overSampled.")
+
+decision_tree()
