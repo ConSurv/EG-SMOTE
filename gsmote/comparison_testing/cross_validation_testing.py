@@ -157,20 +157,20 @@ def gradient_boosting():
 
 def KNN():
 
-    scoring = {'accuracy': make_scorer(accuracy_score),
-               'precision': make_scorer(precision_score),
-               'recall': make_scorer(recall_score),
-               'f1_score': make_scorer(f1_score)}
-
-    kfold = model_selection.KFold(n_splits=10, random_state=True)
-
-    # Fitting Simple Linear Regression to the Training set
-    classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
-    results = model_selection.cross_validate(estimator=classifier,
-                                              X=X_train,
-                                              y=y_train,
-                                              cv=kfold,
-                                              scoring=scoring)
+    # scoring = {'accuracy': make_scorer(accuracy_score),
+    #            'precision': make_scorer(precision_score),
+    #            'recall': make_scorer(recall_score),
+    #            'f1_score': make_scorer(f1_score)}
+    #
+    # kfold = model_selection.KFold(n_splits=10, random_state=True)
+    #
+    # # Fitting Simple Linear Regression to the Training set
+    # classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
+    # results = model_selection.cross_validate(estimator=classifier,
+    #                                           X=X_train,
+    #                                           y=y_train,
+    #                                           cv=kfold,
+    #                                           scoring=scoring)
     kfold = model_selection.StratifiedKFold(n_splits=10, random_state=True)
 
     scoreings = []
@@ -336,16 +336,22 @@ for filename in os.listdir(path):
     print("Plotting completed")
 
     performance1 = logistic_training()
-    # performance2 = gradient_boosting()
+    performance2 = gradient_boosting()
     # performance3 = XGBoost()
-    # performance4 = KNN()
-    # performance5 = decision_tree()
+    performance4 = KNN()
+    performance5 = decision_tree()
     # performance6 = MLPClassifier()
     # performance7 = GaussianMixture_model()
 
-    labels = ["Classifier", "f_score", "f_score2","g_mean","g_mean2", "auc_value","auc_value2"]
-    # values = [performance1, performance2, performance4, performance5]
-    values = [performance1]
+    print(performance1)
+    print(performance2)
+    print(performance4)
+    print(performance5)
+    # labels = ["Classifier", "f_score", "f_score2","g_mean","g_mean2", "auc_value","auc_value2"]
+    labels = ["Classifier", "f_score","g_mean", "auc_value"]
+
+    values = [performance1, performance2, performance4, performance5]
+    # values = [performance1]
 
     scores = pd.DataFrame(values, columns=labels)
     # scores.to_csv("../../output/scores_"+datetime.datetime.now().strftime("%Y-%m-%d__%H_%M_%S")+".csv")
