@@ -59,7 +59,7 @@ def logistic_training():
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
-        GSMOTE = OldGeometricSMOTE()
+        GSMOTE = EGSmote()
         X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
         regressor = LogisticRegression()
         regressor.fit(X_train, y_train)
@@ -101,7 +101,7 @@ def gradient_boosting():
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
-        GSMOTE = OldGeometricSMOTE()
+        GSMOTE = EGSmote()
         X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
         gbc = GradientBoostingClassifier(n_estimators=100, learning_rate=0.01, max_depth=3)
         gbc.fit(X_train, y_train)
@@ -180,7 +180,7 @@ def KNN():
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
-        GSMOTE = OldGeometricSMOTE()
+        GSMOTE = EGSmote()
         X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
         classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
         classifier.fit(X_train, y_train)
@@ -256,7 +256,7 @@ def decision_tree():
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
-        GSMOTE = OldGeometricSMOTE()
+        GSMOTE = EGSmote()
         X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
         regressor = DecisionTreeRegressor()
         regressor.fit(X_train, y_train)
