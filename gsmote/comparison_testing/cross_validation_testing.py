@@ -1,6 +1,7 @@
 """Class to compare performance with different classifiers"""
 import sys
 
+from imblearn.over_sampling import SMOTE
 from sklearn import model_selection
 
 sys.path.append('../../')
@@ -13,7 +14,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeRegressor
 from gsmote import EGSmote
-from gsmote import oldgsmote
+from gsmote.oldgsmote import OldGeometricSMOTE
 from gsmote.comparison_testing.Evaluator import evaluate,evaluate2
 import gsmote.comparison_testing.preprocessing as pp
 import pandas as pd
@@ -31,13 +32,13 @@ def logistic_training():
     scoreings = []
 
     for train_index, test_index in kfold.split(X,y):
-        print("Train:", train_index, "Validation:", test_index)
+        # print("Train:", train_index, "Validation:", test_index)
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
         GSMOTE = EGSmote()
         X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
-        regressor = LogisticRegression()
+        regressor = LogisticRegression(max_iter=120)
         regressor.fit(X_train, y_train)
 
         # Predicting the Test set results
@@ -58,7 +59,7 @@ def gradient_boosting():
     scoreings = []
 
     for train_index, test_index in kfold.split(X, y):
-        print("Train:", train_index, "Validation:", test_index)
+        # print("Train:", train_index, "Validation:", test_index)
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
@@ -97,14 +98,13 @@ def gradient_boosting():
 def KNN():
 
     # Fitting Simple Linear Regression to the Training set
-    classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
-  
+
     kfold = model_selection.StratifiedKFold(n_splits=10, random_state=True)
 
     scoreings = []
 
     for train_index, test_index in kfold.split(X, y):
-        print("Train:", train_index, "Validation:", test_index)
+        # print("Train:", train_index, "Validation:", test_index)
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
@@ -134,7 +134,7 @@ def decision_tree():
     scoreings = []
 
     for train_index, test_index in kfold.split(X, y):
-        print("Train:", train_index, "Validation:", test_index)
+        # print("Train:", train_index, "Validation:", test_index)
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
@@ -156,25 +156,6 @@ def decision_tree():
 
     return ["DT", fscores.mean(), gmean.mean(), auc.mean()]
 
-
-
-def GaussianMixture_model():
-    from sklearn.mixture import GaussianMixture
-    gmm = GaussianMixture(n_components=1)
-    gmm.fit(X_train[y_train==0])
-
-    OKscore = gmm.score_samples(X_train[y_train==0])
-    threshold = OKscore.mean() -  1* OKscore.std()
-
-
-    score = gmm.score_samples(X_test)
-
-
-    # majority_correct = len(score[(y_test == 1) & (score > thred)])
-    y_pred = np.where(score < threshold,1,0)
-    return evaluate("GaussianMixture_model",y_test,y_pred)
-
-
 for filename in os.listdir(path):
 
     # dataset
@@ -192,11 +173,11 @@ for filename in os.listdir(path):
     print("---------------------------------------------------------")
     print("Dataset: " + filename)
     print("Oversampling in progress ...")
-    GSMOTE = EGSmote()
-    X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
+    # GSMOTE = GSMOTE = EGSmote()
+    # X_train, y_train = GSMOTE.fit_resample(X_t, y_t)
 
     # For SMOTE
-    # sm = SMOTE(sampling_strategy='auto', k_neighbors=3, random_state=42)
+    # sm = EGSmote()
     # X_train, y_train = sm.fit_resample(X_t, y_t)
 
 
