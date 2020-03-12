@@ -33,7 +33,7 @@ def evaluate(classifier,Y_test,y_pred,y_pred2):
     print(classifier," finished executing.")
     return [classifier,f_score,f_score2,g_mean,g_mean2,AUC,AUC2]
 
-def evaluate2(Y_test,y_pred):
+def evaluate2(classifier,Y_test,y_pred):
 
     # create a confusion matrix from prediction
     tn, fp, fn, tp = confusion_matrix(Y_test.astype(int), y_pred).ravel()
@@ -46,7 +46,7 @@ def evaluate2(Y_test,y_pred):
     AUC = (tp/(tp+fn)+tn/(tn+fp))/2
 
 
-    return [f_score,g_mean,AUC]
+    return [classifier,f_score,g_mean,AUC]
 
 
 def evaluate_Comparison(classifier,Y_test,y_pred):
@@ -69,3 +69,4 @@ def evaluate_Comparison(classifier,Y_test,y_pred):
 
     print(classifier," finished executing.")
     return [classifier,f_score,g_mean,AUC]
+
