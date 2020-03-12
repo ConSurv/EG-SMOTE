@@ -17,6 +17,10 @@ from imblearn.utils._docstring import _random_state_docstring
 import collections
 from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+from yellowbrick.cluster import KElbowVisualizer
+
 
 def _make_geometric_sample(
         center, surface_point, truncation_factor, deformation_factor, random_state
@@ -280,11 +284,17 @@ class EGSmote(BaseOverSampler):
 
     # Handles sub clustering to create synthetic data
     def sub_clustering(self, X_pos, n_samples):
-        num_clusters=4
+
+        # Find efficient number of clusters
+        model = KMeans()
+        visualizer = KElbowVisualizer(model, k=(3, 20))
+        visualizer.fit(X_pos)  # Fit the data to the visualizer
+        num_clusters=visualizer.elbow_value_
+
         # synthetic samples created under minority strategy
-        num_samples = n_samples * 0.25
-        # kmeans = KMeans(n_clusters=num_clusters)
-        kmeans = GaussianMixture(n_components=num_clusters)
+        num_samples = n_samples * 0.5
+        kmeans = KMeans(n_clusters=num_clusters)
+        # kmeans = GaussianMixture(n_components=num_clusters)
         kmeans.fit(X_pos)
         y_kmeans = kmeans.predict(X_pos)
         clusters=[]

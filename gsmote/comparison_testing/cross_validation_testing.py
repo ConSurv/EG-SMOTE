@@ -1,14 +1,13 @@
 """Class to compare performance with different classifiers"""
-import datetime
 import sys
 
+from imblearn.over_sampling import SMOTE
 from sklearn import model_selection
 
 sys.path.append('../../')
 # sys.path.append('/content/Modified-Geometric-Smote/')
 import numpy as np
 import os
-from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier
@@ -18,13 +17,10 @@ from gsmote import EGSmote
 from gsmote.oldgsmote import OldGeometricSMOTE
 from gsmote.comparison_testing.Evaluator import evaluate,evaluate2
 import gsmote.comparison_testing.preprocessing as pp
-from gsmote.comparison_testing.compare_visual import  visualize_data as vs
 import pandas as pd
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 import xgboost as xgb
-
-
 
 sys.path.append('../../')
 
@@ -153,7 +149,7 @@ for filename in os.listdir(path):
     scoreings = []
 
     for train_index, test_index in kfold.split(X, y):
-        print("Train:", train_index, "Validation:", test_index)
+        # print("Train:", train_index, "Validation:", test_index)
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
