@@ -149,7 +149,8 @@ for filename in os.listdir(path):
     scoreings = []
 
     for train_index, test_index in kfold.split(X, y):
-        # print("Train:", train_index, "Validation:", test_index)
+        print("Train:", train_index, "Validation:", test_index)
+        
         X_t, X_test = X[train_index], X[test_index]
         y_t, y_test = y[train_index], y[test_index]
 
