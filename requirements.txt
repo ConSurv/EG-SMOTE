@@ -1,0 +1,11 @@
+imbalanced-learn==0.6.2
+imblearn==0.0
+matplotlib==3.0.3
+numpy==1.18.1
+pandas==0.25.3
+scikit-learn==0.22.2.post1
+scipy==1.4.1
+seaborn==0.9.1
+squarify==0.4.3
+tqdm==4.43.0
+xgboost==1.0.2
