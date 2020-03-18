@@ -31,7 +31,7 @@ def generate_output_config(dataset, SF, forget_threshold,temporal_contexts, outp
     return output_loc, output_loc_images
 
 
-def run():
+def run(data_filename):
     SF = 0.83
     forget_threshold = 60  # To include forgetting, threshold should be < learning iterations.
     temporal_contexts = 1  # If stationary data - keep this at 1
@@ -41,7 +41,7 @@ def run():
 
     # File Config
     dataset = 'anomaly'
-    data_filename = "../../data/NSLKDD-3.csv".replace('\\', '/')
+    # data_filename = "../../data/NSLKDD-3.csv".replace('\\', '/')
     experiment_id = 'Exp-new-gsom-' + datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
     output_save_location = join('output/', experiment_id)
 
@@ -64,7 +64,7 @@ def run():
     return y_test, y_pred
 
 def evaluate(classifier, Y_test, y_pred):
-    tn, fp, fn, tp = confusion_matrix(Y_test.astype(int), y_pred).ravel()
+    tn, fp, fn, tp = confusion_matrix(Y_test, y_pred).ravel()
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     f_score = 2 * precision * recall / (precision + recall)
@@ -79,8 +79,8 @@ def evaluate(classifier, Y_test, y_pred):
     print("AUC value: " + str(AUC) + "\n")
 
     return [classifier, f_score, g_mean, AUC]
-
-y_test, y_pred =run()
-# evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
-
-print('Completed.')
+#
+y_test, y_pred =run('../data/CICID-mini.csv')
+evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
+#
+# print('Completed.')
