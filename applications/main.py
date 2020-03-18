@@ -79,8 +79,8 @@ def evaluate(classifier, Y_test, y_pred):
     print("AUC value: " + str(AUC) + "\n")
 
     return [classifier, f_score, g_mean, AUC]
-
-# y_test, y_pred =run()
-# evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
-
-print('Completed.')
+#
+y_test, y_pred =run('../data/CICID-mini.csv')
+evaluate("GSOM_Classifier",y_test, np.array(y_pred).astype(int))
+#
+# print('Completed.')

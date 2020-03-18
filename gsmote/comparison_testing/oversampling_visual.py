@@ -1,5 +1,5 @@
 import datetime
-from gsmote import GSMOTE as gs
+from gsmote import EGSmote as gs
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
@@ -8,7 +8,7 @@ import gsmote.comparison_testing.preprocessing as pp
 # Partition the dataset
 from sklearn.model_selection import train_test_split
 
-date_file = "../../data/KDD.csv"
+date_file = "../../data/CICID-11372.csv"
 X,y = pp.pre_process(date_file)
 
 X, X_t, y, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
@@ -18,8 +18,8 @@ pca = PCA(n_components=2)
 # Fit and transform x to visualise inside a 2D feature space
 X_vis = pca.fit_transform(X)
 
-
-X_resampled, y_resampled = gs.OverSample(X, y)
+gs=gs()
+X_resampled, y_resampled = gs.fit_resample(X, y)
 X_res_vis = pca.transform(X_resampled)
 
 # Two subplots, unpack the axes array immediately
