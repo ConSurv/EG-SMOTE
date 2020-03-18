@@ -146,7 +146,7 @@ class EGSmote(BaseOverSampler):
             deformation_factor=0.0,
             k_neighbors=5,
             n_jobs=1,
-            sampling_rate=0.3,
+            sampling_rate=0.1,
     ):
         super(EGSmote, self).__init__(sampling_strategy=sampling_strategy)
         self.random_state = random_state
@@ -236,7 +236,7 @@ class EGSmote(BaseOverSampler):
                         count_min = count_min + 1
 
                 # check noisy point
-                if count_min != 0:
+                if count_min > 1:
 
                     # Minority strategy
                     if count_min == points_mix.shape[1]:
@@ -260,9 +260,9 @@ class EGSmote(BaseOverSampler):
                             surface_point_neg if radius_pos > radius_neg else surface_point_pos
                         )
                         if (radius_pos > radius_neg):
-                            self.truncation_factor = -1.0
+                            self.truncation_factor = -0.7
                         else:
-                            self.truncation_factor = 0.4
+                            self.truncation_factor = 1.0
 
                     # Append new sample
                     if proceed:
@@ -287,7 +287,7 @@ class EGSmote(BaseOverSampler):
 
         # Find efficient number of clusters
         model = KMeans()
-        visualizer = KElbowVisualizer(model, k=(3, 20))
+        visualizer = KElbowVisualizer(model, k=(2, 30))
         visualizer.fit(X_pos)  # Fit the data to the visualizer
         num_clusters=visualizer.elbow_value_
 
